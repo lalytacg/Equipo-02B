@@ -1,0 +1,34 @@
+Equipo 02B - Prototipo HTML de prediccion de viralidad
+
+Contenido:
+- index.html: interfaz del prototipo
+- export_rf_to_js.py: convierte el Random Forest entrenado (.joblib) a rf_model.js
+- rf_model.js: archivo del modelo para el navegador (placeholder hasta que lo generes)
+- 01_generar_modelo_y_abrir.bat: genera rf_model.js y abre el prototipo
+- 02_abrir_prototipo.bat: abre el prototipo si rf_model.js ya existe
+
+Uso rapido:
+1) Copia tu archivo del modelo entrenado a esta carpeta.
+   Nombre sugerido: modelo_act4.joblib
+2) Da doble clic en 01_generar_modelo_y_abrir.bat
+3) El .bat generara rf_model.js y abrira index.html
+
+Requisitos:
+- Python instalado
+- Librerias del entorno con el que entrenaste el modelo:
+  - joblib
+  - scikit-learn
+
+Variables que usa el prototipo (Momento Cero):
+- text_length
+- has_hashtag
+- has_mention
+- has_url
+- has_question
+- has_exclamation
+- hour
+- day_of_week
+
+Notas:
+- Este paquete no incluye Power BI.
+- Si cambias el modelo, vuelve a ejecutar 01_generar_modelo_y_abrir.bat
