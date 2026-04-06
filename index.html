@@ -3,603 +3,370 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Equipo 02B | Predicción temprana de viralidad en X</title>
+  <title>Equipo 02B | Predicción temprana de viralidad de Tweets</title>
   <style>
     :root {
-      --bg: #0f172a;
-      --panel: #111827;
-      --panel-2: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-2: #22c55e;
-      --warning: #f59e0b;
-      --border: rgba(148, 163, 184, 0.18);
-      --shadow: 0 16px 40px rgba(2, 8, 23, 0.35);
-      --radius: 18px;
+      --sage: #60695C; --rose: #E7CFCD; --terracotta: #94524A;
+      --mint: #B5C9C3; --thistle: #CAB1BD; --bg: #f5f3f1;
+      --card: #ffffff; --text: #1f1f1f; --muted: #5f6368;
+      --border: #d8d8d8; --shadow: 0 10px 24px rgba(0,0,0,0.08);
     }
-
     * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(56, 189, 248, 0.16), transparent 30%),
-        radial-gradient(circle at top left, rgba(34, 197, 94, 0.10), transparent 28%),
-        var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .wrap {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 32px 20px 48px;
-    }
-
-    .hero {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-
-    .eyebrow {
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 42px);
-      line-height: 1.08;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      max-width: 860px;
-      line-height: 1.6;
-      font-size: 15px;
-    }
-
-    .model-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      width: fit-content;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: rgba(17, 24, 39, 0.8);
-      color: var(--text);
-      font-size: 13px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 24px;
-    }
-
-    @media (max-width: 920px) {
-      .grid { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(17,24,39,0.95), rgba(17,24,39,0.88));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
-    }
-
-    .card h2, .card h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-
-    .card p.helper {
-      margin-top: 0;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    textarea, select {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s ease, transform 0.15s ease;
-    }
-
-    textarea:focus, select:focus {
-      border-color: rgba(56, 189, 248, 0.65);
-      transform: translateY(-1px);
-    }
-
-    textarea {
-      min-height: 150px;
-      resize: vertical;
-      line-height: 1.45;
-    }
-
-    .counter {
-      margin-top: 8px;
-      text-align: right;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 18px;
-    }
-
-    button {
-      border: none;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.2s ease;
-    }
-
-    button:hover { transform: translateY(-1px); }
-
-    .primary {
-      background: linear-gradient(135deg, var(--accent), #2563eb);
-      color: white;
-    }
-
-    .secondary {
-      background: rgba(148, 163, 184, 0.1);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .warning {
-      margin-top: 14px;
-      border-left: 4px solid var(--warning);
-      background: rgba(245, 158, 11, 0.08);
-      padding: 12px 14px;
-      border-radius: 12px;
-      color: #fde68a;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .result-hero {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      width: fit-content;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      background: rgba(15, 23, 42, 0.8);
+      margin: 0; font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, rgba(231,207,205,0.45), rgba(181,201,195,0.35));
       color: var(--text);
     }
-
-    .big-number {
-      font-size: clamp(40px, 6vw, 58px);
-      line-height: 1;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .muted {
-      color: var(--muted);
-      margin: 0;
-      line-height: 1.6;
-      font-size: 14px;
-    }
-
-    .meter {
-      height: 12px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.16);
-      overflow: hidden;
-    }
-
-    .meter > span {
-      display: block;
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      transition: width 0.35s ease;
-    }
-
-    .section-title {
-      margin: 18px 0 10px;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .facts, .signals {
-      display: grid;
-      gap: 10px;
-    }
-
-    .fact {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: rgba(15, 23, 42, 0.72);
-    }
-
-    .fact small {
-      display: block;
-      color: var(--muted);
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.35;
-    }
-
-    .badge {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(56, 189, 248, 0.12);
-      color: #bae6fd;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .footer {
-      margin-top: 28px;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: center;
-    }
-
-    .code-note {
-      margin-top: 18px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .page { max-width: 1040px; margin: 0 auto; padding: 28px 18px 40px; }
+    .header { text-align: center; margin-bottom: 18px; }
+    .header h1 { margin: 0; font-size: 2.2rem; letter-spacing: 0.3px; }
+    .header p { margin: 10px 0 0; color: var(--muted); font-size: 1rem; line-height: 1.5; }
+    .subtitle { margin-top: 8px; font-size: 0.95rem; color: var(--sage); font-weight: 600; }
+    .card { background: var(--card); border-radius: 22px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 22px; }
+    .card-body { padding: 30px; }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #4b4b4b; margin: 0 0 18px; text-transform: uppercase; letter-spacing: 0.7px; }
+    label { display: block; margin-bottom: 8px; font-size: 0.95rem; font-weight: 600; color: #333; }
+    textarea, select { width: 100%; border: 1px solid var(--border); border-radius: 16px; padding: 14px 15px; font-size: 0.98rem; background: #fff; color: var(--text); outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+    textarea:focus, select:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(96,105,92,0.14); }
+    textarea { min-height: 140px; resize: vertical; line-height: 1.45; }
+    .char-count { text-align: right; font-size: 0.9rem; color: var(--muted); margin-top: 8px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 20px; }
+    @media (max-width: 840px) { .row-3 { grid-template-columns: 1fr; } }
+    .analyze-wrap { margin-top: 26px; }
+    .analyze-btn { width: 100%; border: none; border-radius: 16px; padding: 18px; font-size: 1.05rem; font-weight: 800; cursor: pointer; background: var(--sage); color: white; letter-spacing: 0.3px; transition: transform 0.15s ease, opacity 0.15s ease; }
+    .analyze-btn:hover { transform: translateY(-1px); opacity: 0.97; }
+    .tools { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+    .mini-btn { border: none; border-radius: 14px; padding: 12px 16px; font-size: 0.94rem; font-weight: 700; cursor: pointer; background: var(--thistle); color: var(--text); }
+    .status { margin-top: 18px; border-radius: 14px; padding: 13px 15px; font-size: 0.92rem; line-height: 1.45; }
+    .warn { background: #fff8e8; border: 1px solid #e5d29e; color: #725f24; }
+    .ok { background: #edf6f2; border: 1px solid #c9ddd3; color: #355248; }
+    .result-card { background: linear-gradient(135deg, rgba(202,177,189,0.34), rgba(181,201,195,0.28)); }
+    .result-main { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 840px) { .result-main { grid-template-columns: 1fr; } }
+    .panel { background: rgba(255,255,255,0.72); border: 1px solid rgba(0,0,0,0.05); border-radius: 18px; padding: 18px; }
+    .score { font-size: 2.3rem; font-weight: 800; margin: 8px 0 0; }
+    .score-label { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
+    .bar-wrap { margin-top: 16px; height: 12px; background: #e8e8e8; border-radius: 999px; overflow: hidden; }
+    .bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--sage), var(--terracotta)); border-radius: 999px; transition: width 0.35s ease; }
+    .legend { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; color: #444; font-size: 0.92rem; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .dot.low { background: #7e927c; } .dot.mid { background: #d1a35d; } .dot.high { background: var(--terracotta); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+    .chip { background: #f3f3f3; border: 1px solid rgba(0,0,0,0.06); border-radius: 999px; padding: 7px 10px; font-size: 0.82rem; color: #3d3d3d; }
+    .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    @media (max-width: 840px) { .meta-grid { grid-template-columns: 1fr; } }
+    .mini-box { background: #fafafa; border: 1px solid rgba(0,0,0,0.05); border-radius: 16px; padding: 14px; }
+    .mini-box-title { font-size: 0.86rem; color: var(--muted); margin-bottom: 6px; }
+    .mini-box-value { font-size: 1.2rem; font-weight: 700; }
+    .factor-list { display: grid; gap: 11px; margin-top: 8px; }
+    .factor-item { display: grid; grid-template-columns: 120px 1fr 52px; gap: 10px; align-items: center; }
+    .factor-track { height: 10px; background: #e7e7e7; border-radius: 999px; overflow: hidden; }
+    .factor-fill { height: 100%; background: linear-gradient(90deg, var(--mint), var(--sage)); width: 0%; border-radius: 999px; }
+    .note { margin-top: 18px; background: #fafafa; border: 1px solid rgba(0,0,0,0.06); border-radius: 16px; padding: 14px; color: var(--muted); line-height: 1.55; font-size: 0.93rem; }
+    .footer { text-align: center; color: var(--muted); font-size: 0.85rem; margin-top: 16px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="eyebrow">Equipo 02B</div>
-      <h1>Predicción temprana de viralidad en la red social X (antes Twitter)</h1>
-      <p class="subtitle">
-        Prototipo de inferencia con variables de <strong>Momento Cero</strong>. La predicción se basa en la misma lógica de variables empleadas en el modelo de Random Forest desarrollado en Python: longitud del texto, presencia de hashtags, menciones, URLs, signos de puntuación, hora y día de publicación.
-      </p>
-      <div class="model-tag">Modelo objetivo: Random Forest · Momento Cero · Equipo 02B</div>
-    </section>
-
-    <section class="grid">
-      <article class="card">
-        <h2>Evaluar tweet</h2>
-        <p class="helper">Ingrese el contenido del tweet y seleccione el momento estimado de publicación. El sistema genera las variables tempranas y calcula la probabilidad de viralidad.</p>
-
-        <label for="tweet">Contenido del tweet</label>
-        <textarea id="tweet" maxlength="280" placeholder="Escribe aquí el tweet a evaluar..."></textarea>
-        <div class="counter"><span id="counter">0</span> / 280</div>
-
-        <div class="row" style="margin-top:16px;">
-          <div>
-            <label for="day">Día de la semana</label>
-            <select id="day">
-              <option value="0">Lunes</option>
-              <option value="1">Martes</option>
-              <option value="2">Miércoles</option>
-              <option value="3">Jueves</option>
-              <option value="4">Viernes</option>
-              <option value="5">Sábado</option>
-              <option value="6">Domingo</option>
-            </select>
-          </div>
-          <div>
-            <label for="hour">Hora prevista</label>
-            <select id="hour"></select>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="primary" id="analyzeBtn">Analizar</button>
-          <button class="secondary" id="exampleBtn" type="button">Cargar ejemplo</button>
-          <button class="secondary" id="clearBtn" type="button">Limpiar</button>
-        </div>
-
-        <div class="warning" id="modelWarning">
-          Si no se carga un archivo <code>rf_model.js</code> exportado desde Python, la página no podrá ejecutar el bosque aleatorio real.
-          Esta plantilla ya deja lista la interfaz y la lógica de inferencia para usar el modelo entrenado con Momento Cero.
-        </div>
-
-        <div class="code-note">
-          Variables usadas por el modelo: <code>text_length</code>, <code>has_hashtag</code>, <code>has_mention</code>, <code>has_url</code>, <code>has_question</code>, <code>has_exclamation</code>, <code>hour</code> y <code>day_of_week</code>.
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="result-hero">
-          <div class="pill" id="statusPill">Esperando análisis</div>
-          <p class="big-number" id="probability">—</p>
-          <div class="meter"><span id="probMeter"></span></div>
-          <p class="muted" id="summary">El resultado aparecerá aquí una vez que se analice el tweet.</p>
-        </div>
-
-        <div class="section-title">Variables de Momento Cero detectadas</div>
-        <div class="facts" id="facts"></div>
-
-        <div class="section-title">Lectura rápida de señales</div>
-        <div class="signals" id="signals"></div>
-      </article>
-    </section>
-
-    <div class="footer">Equipo 02B · Prototipo de evaluación temprana de viralidad · 2026</div>
+<div class="page">
+  <div class="header">
+    <h1>Predicción temprana de viralidad de Tweets</h1>
+    <div class="subtitle">Equipo 02B · 2026</div>
+    <p>Prototipo de inferencia con variables de <strong>Momento Cero</strong>. Modelo principal: <strong>Random Forest</strong>.</p>
   </div>
 
-  <script src="rf_model.js"></script>
-  <script>
-    const featureOrder = [
-      'text_length', 'has_hashtag', 'has_mention', 'has_url',
-      'has_question', 'has_exclamation', 'hour', 'day_of_week'
-    ];
+  <!-- ENTRADA -->
+  <section class="card">
+    <div class="card-body">
+      <h2 class="section-title">Contenido del tweet</h2>
+      <label for="tweet">Texto del tweet</label>
+      <textarea id="tweet" maxlength="280" placeholder="Escribe tu tweet aquí..."></textarea>
+      <div class="char-count"><span id="charCounter">0</span> / 280</div>
+      <div class="row-3">
+        <div>
+          <label for="day_of_week">Día de la semana</label>
+          <select id="day_of_week">
+            <option value="0">Lunes</option><option value="1">Martes</option>
+            <option value="2">Miércoles</option><option value="3">Jueves</option>
+            <option value="4">Viernes</option><option value="5">Sábado</option>
+            <option value="6">Domingo</option>
+          </select>
+        </div>
+        <div>
+          <label for="hour">Hora prevista</label>
+          <select id="hour"></select>
+        </div>
+        <div>
+          <label for="minute">Minutos</label>
+          <select id="minute">
+            <option value="0">:00</option><option value="15">:15</option>
+            <option value="30">:30</option><option value="45">:45</option>
+          </select>
+        </div>
+      </div>
+      <div class="analyze-wrap">
+        <button class="analyze-btn" id="analyzeBtn">ANALIZAR</button>
+      </div>
+      <div class="tools">
+        <button class="mini-btn" id="exampleBtn">Cargar ejemplo</button>
+        <button class="mini-btn" id="clearBtn">Limpiar</button>
+      </div>
+      <div id="modelStatus" class="status warn">
+        Aún no se detecta correctamente el archivo <strong>rf_model.js</strong>. La interfaz sí abre, pero la predicción real necesita ese archivo.
+      </div>
+    </div>
+  </section>
 
-    const tweetEl = document.getElementById('tweet');
-    const counterEl = document.getElementById('counter');
-    const dayEl = document.getElementById('day');
-    const hourEl = document.getElementById('hour');
-    const probabilityEl = document.getElementById('probability');
-    const probMeterEl = document.getElementById('probMeter');
-    const statusPillEl = document.getElementById('statusPill');
-    const summaryEl = document.getElementById('summary');
-    const factsEl = document.getElementById('facts');
-    const signalsEl = document.getElementById('signals');
-    const modelWarningEl = document.getElementById('modelWarning');
-
-    for (let h = 0; h < 24; h++) {
-      const option = document.createElement('option');
-      option.value = String(h);
-      option.textContent = `${String(h).padStart(2, '0')}:00`;
-      hourEl.appendChild(option);
-    }
-    hourEl.value = '11';
-    dayEl.value = '2';
-
-    function updateCounter() {
-      counterEl.textContent = tweetEl.value.length;
-    }
-
-    tweetEl.addEventListener('input', updateCounter);
-    updateCounter();
-
-    function extractFeatures(text, dayOfWeek, hour) {
-      return {
-        text_length: text.length,
-        has_hashtag: /#/g.test(text) ? 1 : 0,
-        has_mention: /@/g.test(text) ? 1 : 0,
-        has_url: /(https?:\/\/|www\.)/i.test(text) ? 1 : 0,
-        has_question: /\?/g.test(text) ? 1 : 0,
-        has_exclamation: /!/g.test(text) ? 1 : 0,
-        hour: Number(hour),
-        day_of_week: Number(dayOfWeek)
-      };
-    }
-
-    function normalizeLeafValue(value) {
-      if (!Array.isArray(value)) return 0.5;
-      const arr = Array.isArray(value[0]) ? value[0] : value;
-      const total = arr.reduce((acc, cur) => acc + cur, 0);
-      if (!total) return 0.5;
-      return arr.length > 1 ? arr[1] / total : arr[0] / total;
-    }
-
-    function traverseTree(tree, featureMap) {
-      let node = 0;
-      while (tree.feature[node] !== -2) {
-        const featureName = tree.features[tree.feature[node]];
-        const threshold = tree.threshold[node];
-        const value = featureMap[featureName];
-        node = value <= threshold ? tree.children_left[node] : tree.children_right[node];
-      }
-      return normalizeLeafValue(tree.value[node]);
-    }
-
-    function predictWithForest(featureMap) {
-      if (!window.RF_MODEL || !Array.isArray(window.RF_MODEL.trees)) {
-        throw new Error('No se encontró RF_MODEL en rf_model.js');
-      }
-      const probs = window.RF_MODEL.trees.map(tree => traverseTree(tree, featureMap));
-      return probs.reduce((acc, cur) => acc + cur, 0) / probs.length;
-    }
-
-    function renderFacts(featureMap) {
-      const labels = {
-        text_length: 'Longitud del texto',
-        has_hashtag: 'Incluye hashtag',
-        has_mention: 'Incluye mención',
-        has_url: 'Incluye URL',
-        has_question: 'Incluye interrogación',
-        has_exclamation: 'Incluye exclamación',
-        hour: 'Hora de publicación',
-        day_of_week: 'Día de la semana'
-      };
-
-      const descriptions = {
-        text_length: 'Número total de caracteres del tweet.',
-        has_hashtag: 'Variable binaria derivada del texto.',
-        has_mention: 'Variable binaria derivada del texto.',
-        has_url: 'Variable binaria derivada del texto.',
-        has_question: 'Variable binaria derivada del estilo del mensaje.',
-        has_exclamation: 'Variable binaria derivada del estilo del mensaje.',
-        hour: 'Hora seleccionada para la publicación.',
-        day_of_week: 'Día seleccionado para la publicación.'
-      };
-
-      const dayLabels = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
-      factsEl.innerHTML = '';
-      featureOrder.forEach(key => {
-        const value = key === 'day_of_week'
-          ? dayLabels[featureMap[key]]
-          : (key.startsWith('has_') ? (featureMap[key] ? 'Sí' : 'No') : featureMap[key]);
-
-        const item = document.createElement('div');
-        item.className = 'fact';
-        item.innerHTML = `
-          <div>
-            <strong>${labels[key]}</strong>
-            <small>${descriptions[key]}</small>
+  <!-- RESULTADO -->
+  <section class="card result-card">
+    <div class="card-body">
+      <h2 class="section-title">Análisis del tweet</h2>
+      <div class="result-main">
+        <div class="panel">
+          <div class="legend">
+            <span class="dot low"></span> Baja
+            <span class="dot mid"></span> Media
+            <span class="dot high"></span> Alta
           </div>
-          <span class="badge">${value}</span>
-        `;
-        factsEl.appendChild(item);
-      });
+          <div class="score" id="scoreText">--%</div>
+          <div class="score-label" id="scoreLabel">Probabilidad estimada de viralidad</div>
+          <div class="bar-wrap"><div class="bar" id="scoreBar"></div></div>
+          <div class="chips" id="chips"></div>
+          <div class="meta-grid">
+            <div class="mini-box">
+              <div class="mini-box-title">Longitud</div>
+              <div class="mini-box-value" id="preview-length">0 caracteres</div>
+            </div>
+            <div class="mini-box">
+              <div class="mini-box-title">Hashtags / menciones / URL</div>
+              <div class="mini-box-value" id="preview-structure">0 / 0 / 0</div>
+            </div>
+            <div class="mini-box">
+              <div class="mini-box-title">Pregunta / exclamación</div>
+              <div class="mini-box-value" id="preview-tone">0 / 0</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 style="margin-top:0;">Resumen de variables detectadas</h3>
+          <div class="factor-list">
+            <div class="factor-item"><span>Longitud</span><div class="factor-track"><div class="factor-fill" id="f_text_length"></div></div><span id="v_text_length">0</span></div>
+            <div class="factor-item"><span>Hashtag</span><div class="factor-track"><div class="factor-fill" id="f_has_hashtag"></div></div><span id="v_has_hashtag">0</span></div>
+            <div class="factor-item"><span>Mención</span><div class="factor-track"><div class="factor-fill" id="f_has_mention"></div></div><span id="v_has_mention">0</span></div>
+            <div class="factor-item"><span>URL</span><div class="factor-track"><div class="factor-fill" id="f_has_url"></div></div><span id="v_has_url">0</span></div>
+            <div class="factor-item"><span>Pregunta</span><div class="factor-track"><div class="factor-fill" id="f_has_question"></div></div><span id="v_has_question">0</span></div>
+            <div class="factor-item"><span>Exclamación</span><div class="factor-track"><div class="factor-fill" id="f_has_exclamation"></div></div><span id="v_has_exclamation">0</span></div>
+            <div class="factor-item"><span>Hora</span><div class="factor-track"><div class="factor-fill" id="f_hour"></div></div><span id="v_hour">0</span></div>
+            <div class="factor-item"><span>Día</span><div class="factor-track"><div class="factor-fill" id="f_day_of_week"></div></div><span id="v_day_of_week">0</span></div>
+          </div>
+          <div class="note" id="interpretation">Aquí aparecerá la interpretación del resultado una vez que analices el tweet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">Equipo 02B · Prototipo de evaluación temprana de viralidad · 2026</div>
+</div>
+
+<script src="rf_model.js"></script>
+<script>
+  /* === Referencias DOM === */
+  const tweetInput = document.getElementById("tweet");
+  const daySelect = document.getElementById("day_of_week");
+  const hourSelect = document.getElementById("hour");
+  const minuteSelect = document.getElementById("minute");
+  const modelStatus = document.getElementById("modelStatus");
+  const charCounter = document.getElementById("charCounter");
+  const scoreText = document.getElementById("scoreText");
+  const scoreLabel = document.getElementById("scoreLabel");
+  const scoreBar = document.getElementById("scoreBar");
+  const chipsEl = document.getElementById("chips");
+  const interpretationEl = document.getElementById("interpretation");
+  const previewLength = document.getElementById("preview-length");
+  const previewStructure = document.getElementById("preview-structure");
+  const previewTone = document.getElementById("preview-tone");
+
+  /* Poblar horas */
+  for (let h = 0; h < 24; h++) {
+    const o = document.createElement("option");
+    o.value = h;
+    o.textContent = `${String(h).padStart(2, "0")}:00`;
+    hourSelect.appendChild(o);
+  }
+  hourSelect.value = 11;
+
+  /* === Extracción de features === */
+  function getFeaturesFromTweet(text, hour, dayOfWeek) {
+    const t = text || "";
+    return {
+      text_length: t.length,
+      has_hashtag: /#\w+/.test(t) ? 1 : 0,
+      has_mention: /@\w+/.test(t) ? 1 : 0,
+      has_url: /(https?:\/\/|www\.)/i.test(t) ? 1 : 0,
+      has_question: /[?¿]/.test(t) ? 1 : 0,
+      has_exclamation: /[!¡]/.test(t) ? 1 : 0,
+      hour: Number(hour),
+      day_of_week: Number(dayOfWeek)
+    };
+  }
+
+  /* === Inferencia con RF_MODEL (árboles exportados desde Python) === */
+  function normalizeLeafValue(value) {
+    if (!Array.isArray(value)) return 0.5;
+    const arr = Array.isArray(value[0]) ? value[0] : value;
+    const total = arr.reduce((a, b) => a + b, 0);
+    if (!total) return 0.5;
+    return arr.length > 1 ? arr[1] / total : arr[0] / total;
+  }
+
+  function traverseTree(tree, featureMap) {
+    let node = 0;
+    while (tree.feature[node] !== -2) {
+      const featureName = tree.features[tree.feature[node]];
+      const threshold = tree.threshold[node];
+      const value = featureMap[featureName];
+      node = value <= threshold ? tree.children_left[node] : tree.children_right[node];
     }
+    return normalizeLeafValue(tree.value[node]);
+  }
 
-    function renderSignals(featureMap, probability) {
-      const signals = [];
-
-      if (featureMap.text_length >= 140) {
-        signals.push(['Texto relativamente extenso', 'La longitud del texto fue una de las señales más relevantes en el modelo.']);
-      } else {
-        signals.push(['Texto corto o intermedio', 'La longitud se mantiene por debajo del rango alto observado en el entrenamiento.']);
-      }
-
-      if (featureMap.hour === 11) {
-        signals.push(['Hora pico observada', 'La franja de las 11:00 hrs presentó la mayor tasa observada de viralidad en el análisis exploratorio.']);
-      } else if (featureMap.hour === 3) {
-        signals.push(['Hora secundaria destacada', 'En el análisis también apareció una señal interesante alrededor de las 03:00 hrs.']);
-      } else {
-        signals.push(['Horario distinto al pico', 'La hora seleccionada no coincide con la franja de mayor tasa observada.']);
-      }
-
-      if (featureMap.has_mention) {
-        signals.push(['Incluye mención', 'La mención se considera dentro de las señales estructurales del modelo.']);
-      }
-      if (featureMap.has_url) {
-        signals.push(['Incluye URL', 'La presencia de enlaces forma parte de las variables tempranas consideradas.']);
-      }
-      if (featureMap.has_hashtag) {
-        signals.push(['Incluye hashtag', 'La presencia de hashtag se incorpora como variable binaria en la predicción.']);
-      }
-      if (featureMap.has_question || featureMap.has_exclamation) {
-        signals.push(['Tono marcado', 'Los signos de puntuación se usan como señales simples del estilo del contenido.']);
-      }
-
-      signals.push([
-        probability >= 0.5 ? 'Lectura general: mayor propensión' : 'Lectura general: propensión moderada o baja',
-        'El resultado debe entenderse como apoyo para evaluación temprana, no como garantía de viralidad.'
-      ]);
-
-      signalsEl.innerHTML = '';
-      signals.slice(0, 5).forEach(([title, desc]) => {
-        const item = document.createElement('div');
-        item.className = 'fact';
-        item.innerHTML = `<div><strong>${title}</strong><small>${desc}</small></div><span class="badge">Momento Cero</span>`;
-        signalsEl.appendChild(item);
-      });
+  function predictWithForest(featureMap) {
+    if (!window.RF_MODEL || !Array.isArray(window.RF_MODEL.trees)) {
+      throw new Error("RF_MODEL no disponible");
     }
+    const probs = window.RF_MODEL.trees.map(tree => traverseTree(tree, featureMap));
+    return probs.reduce((a, b) => a + b, 0) / probs.length;
+  }
 
-    function renderResult(probability, featureMap) {
-      const pct = (probability * 100).toFixed(2);
-      probabilityEl.textContent = `${pct}%`;
-      probMeterEl.style.width = `${Math.min(100, Math.max(0, probability * 100))}%`;
+  /* === Fallback si no hay modelo === */
+  function fallbackProbability(f) {
+    let s = 0.12;
+    s += Math.min(f.text_length / 280, 1) * 0.22;
+    s += f.has_hashtag ? 0.04 : 0;
+    s += f.has_mention ? 0.05 : 0;
+    s += f.has_url ? 0.04 : 0;
+    s += f.has_question ? 0.02 : 0;
+    s += f.has_exclamation ? 0.02 : 0;
+    s += f.hour === 11 ? 0.12 : 0;
+    s += f.day_of_week === 2 ? 0.06 : 0;
+    return Math.max(0, Math.min(s, 0.95));
+  }
 
-      let label = 'Probabilidad moderada';
-      if (probability >= 0.65) label = 'Alta probabilidad estimada';
-      else if (probability >= 0.45) label = 'Probabilidad media estimada';
-      else label = 'Probabilidad baja estimada';
+  /* === UI helpers === */
+  function setFactor(name, width, value) {
+    const fill = document.getElementById(`f_${name}`);
+    const lbl = document.getElementById(`v_${name}`);
+    if (fill) fill.style.width = `${width}%`;
+    if (lbl) lbl.textContent = value;
+  }
 
-      statusPillEl.textContent = label;
-      summaryEl.textContent = 'La probabilidad se calculó a partir del modelo de Random Forest con variables tempranas de Momento Cero.';
-      renderFacts(featureMap);
-      renderSignals(featureMap, probability);
-    }
+  function updatePreview() {
+    charCounter.textContent = tweetInput.value.length;
+    const f = getFeaturesFromTweet(tweetInput.value, hourSelect.value, daySelect.value);
+    previewLength.textContent = `${f.text_length} caracteres`;
+    previewStructure.textContent = `${f.has_hashtag} / ${f.has_mention} / ${f.has_url}`;
+    previewTone.textContent = `${f.has_question} / ${f.has_exclamation}`;
+    setFactor("text_length", Math.min((f.text_length / 280) * 100, 100), f.text_length);
+    setFactor("has_hashtag", f.has_hashtag * 100, f.has_hashtag);
+    setFactor("has_mention", f.has_mention * 100, f.has_mention);
+    setFactor("has_url", f.has_url * 100, f.has_url);
+    setFactor("has_question", f.has_question * 100, f.has_question);
+    setFactor("has_exclamation", f.has_exclamation * 100, f.has_exclamation);
+    setFactor("hour", (f.hour / 23) * 100, f.hour);
+    setFactor("day_of_week", (f.day_of_week / 6) * 100, f.day_of_week);
+  }
 
-    function analyzeTweet() {
-      const text = tweetEl.value.trim();
-      if (!text) {
-        alert('Escribe el contenido del tweet antes de analizar.');
-        return;
-      }
-
-      const featureMap = extractFeatures(text, dayEl.value, hourEl.value);
-      renderFacts(featureMap);
-
-      try {
-        const probability = predictWithForest(featureMap);
-        renderResult(probability, featureMap);
-        modelWarningEl.style.display = 'none';
-      } catch (err) {
-        statusPillEl.textContent = 'Modelo no cargado';
-        probabilityEl.textContent = '—';
-        probMeterEl.style.width = '0%';
-        summaryEl.textContent = 'La interfaz está lista, pero falta cargar rf_model.js exportado desde Python.';
-        renderSignals(featureMap, 0);
-        modelWarningEl.style.display = 'block';
-        console.warn(err.message);
-      }
-    }
-
-    document.getElementById('analyzeBtn').addEventListener('click', analyzeTweet);
-    document.getElementById('exampleBtn').addEventListener('click', () => {
-      tweetEl.value = 'Hoy presentamos un avance del proyecto de predicción de viralidad en X. ¿Qué variable temprana crees que influye más en la difusión? #BigData #MachineLearning';
-      dayEl.value = '2';
-      hourEl.value = '11';
-      updateCounter();
-      analyzeTweet();
+  function renderChips(features) {
+    chipsEl.innerHTML = "";
+    [
+      features.has_hashtag ? "Hashtag" : "Sin hashtag",
+      features.has_mention ? "Mención" : "Sin mención",
+      features.has_url ? "URL" : "Sin URL",
+      features.has_question ? "Pregunta" : "Sin pregunta",
+      features.has_exclamation ? "Exclamación" : "Sin exclamación",
+      `${features.text_length} caracteres`,
+      hourSelect.options[hourSelect.selectedIndex].text
+    ].forEach(t => {
+      const c = document.createElement("span");
+      c.className = "chip";
+      c.textContent = t;
+      chipsEl.appendChild(c);
     });
-    document.getElementById('clearBtn').addEventListener('click', () => {
-      tweetEl.value = '';
-      dayEl.value = '0';
-      hourEl.value = '11';
-      updateCounter();
-      statusPillEl.textContent = 'Esperando análisis';
-      probabilityEl.textContent = '—';
-      probMeterEl.style.width = '0%';
-      summaryEl.textContent = 'El resultado aparecerá aquí una vez que se analice el tweet.';
-      factsEl.innerHTML = '';
-      signalsEl.innerHTML = '';
-      modelWarningEl.style.display = window.RF_MODEL ? 'none' : 'block';
-    });
+  }
 
-    if (window.RF_MODEL) {
-      modelWarningEl.style.display = 'none';
+  function getHumanMessage(prob, f) {
+    const parts = [];
+    if (prob >= 0.7) parts.push("El tweet presenta señales tempranas favorables para difusión.");
+    else if (prob >= 0.45) parts.push("El tweet muestra condiciones intermedias y podría fortalecerse con pequeños ajustes.");
+    else parts.push("El tweet no muestra señales fuertes de viralidad temprana.");
+    parts.push(f.text_length > 140 ? "La longitud del texto aporta más contexto al mensaje." : "El texto es relativamente breve.");
+    if (f.hour === 11) parts.push("La hora elegida coincide con una franja que destacó en el análisis.");
+    if (f.has_url) parts.push("El tweet incluye una URL, lo cual puede modificar la forma en que se percibe el contenido.");
+    return parts.join(" ");
+  }
+
+  /* === Predicción principal === */
+  function runPrediction() {
+    const text = tweetInput.value.trim();
+    if (!text) { alert("Escribe el contenido del tweet antes de analizar."); return; }
+
+    const features = getFeaturesFromTweet(text, hourSelect.value, daySelect.value);
+    renderChips(features);
+    updatePreview();
+
+    let prob = 0;
+    try {
+      prob = predictWithForest(features);
+      modelStatus.className = "status ok";
+      modelStatus.innerHTML = "Modelo cargado correctamente. La probabilidad se está calculando con <strong>rf_model.js</strong>.";
+    } catch (e) {
+      prob = fallbackProbability(features);
+      modelStatus.className = "status warn";
+      modelStatus.innerHTML = "No se detectó el modelo real. Se muestra una estimación provisional para fines de interfaz.";
     }
-  </script>
+
+    const pct = Math.round(prob * 1000) / 10;
+    scoreText.textContent = `${pct}%`;
+    scoreBar.style.width = `${Math.max(pct, 2)}%`;
+    scoreLabel.textContent = prob >= 0.7 ? "Probabilidad alta de viralidad" : prob >= 0.45 ? "Probabilidad media de viralidad" : "Probabilidad baja de viralidad";
+    interpretationEl.textContent = getHumanMessage(prob, features);
+  }
+
+  function clearForm() {
+    tweetInput.value = "";
+    daySelect.value = "0";
+    hourSelect.value = "11";
+    minuteSelect.value = "0";
+    scoreText.textContent = "--%";
+    scoreLabel.textContent = "Probabilidad estimada de viralidad";
+    scoreBar.style.width = "0%";
+    chipsEl.innerHTML = "";
+    interpretationEl.textContent = "Aquí aparecerá la interpretación del resultado una vez que analices el tweet.";
+    updatePreview();
+  }
+
+  /* === Eventos === */
+  document.getElementById("analyzeBtn").addEventListener("click", runPrediction);
+  document.getElementById("clearBtn").addEventListener("click", clearForm);
+  document.getElementById("exampleBtn").addEventListener("click", () => {
+    tweetInput.value = "Analizamos 100,000 tweets y encontramos patrones tempranos de viralidad. Los resultados nos sorprendieron. #datos #Twitter http://bit.ly/ejemplo";
+    daySelect.value = "4";
+    hourSelect.value = "12";
+    minuteSelect.value = "0";
+    updatePreview();
+    runPrediction();
+  });
+
+  tweetInput.addEventListener("input", updatePreview);
+  daySelect.addEventListener("change", updatePreview);
+  hourSelect.addEventListener("change", updatePreview);
+  minuteSelect.addEventListener("change", updatePreview);
+
+  /* Estado inicial */
+  updatePreview();
+  if (window.RF_MODEL && Array.isArray(window.RF_MODEL.trees)) {
+    modelStatus.className = "status ok";
+    modelStatus.innerHTML = `Modelo cargado: <strong>${window.RF_MODEL.n_estimators} árboles</strong> listos para predicción.`;
+  }
+</script>
 </body>
 </html>
